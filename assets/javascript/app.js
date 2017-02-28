@@ -3,16 +3,15 @@ $(document).ready(function() {
 // APP STATE
 // =========
   var appState = {
-    // phase: reset, timer/question started, answerSubmitted, timerUp, noQuestionsLeft
-    "phase":"reset",
-    // timer variable that will hold the setTimeout in the start timer fxn so it can be stopped
-    "timeout": null,
-    "interval": null,
-    "countdownTime": 5, //total seconds to answer
-
+    // phase: initialize, waitingForAnswer, answered, unanswered, noQuestionsLeft
+    "phase":"initialize",
+    "interval": null, // to hold the interval so it can be stopped 
+    "timeToAnswer": 3, //total seconds to answer
+    "timeBeforeNextQuestion": 2, //time before next question
 
     "questionIndex": 0, 
     "currentQuestionObject": null,
+    "userAnswer": null,
     // correct, incorrect, unanswered counters
     "correctCounter": 0,
     "incorrectCounter": 0,
@@ -27,7 +26,7 @@ $(document).ready(function() {
       "b": "option b here",
       "c": "option c here",
       "d": "option d here",
-      "answer": "a",
+      "answer": "a", //gets the value stored in the key that "answer" points to
       "asked":0
     },
     {"question": "Q2 will go here",
@@ -35,7 +34,7 @@ $(document).ready(function() {
       "b": "option b here",
       "c": "option c here",
       "d": "option d here",
-      "answer": "d",
+      "answer": function() {return this.d},
       "asked": false
     },
     ]
@@ -68,49 +67,65 @@ $(document).ready(function() {
       appState.questionIndex++;
       console.log("current question: " + appState.currentQuestionObject.question);
       console.log("index incremented to: " + appState.questionIndex);
-      gameplay.startTimer();
+      //gameplay.startTimer();
+      gameplay.startCountdown();
     },
-    // start timer
-    startTimer: function(){
-      console.log("startTimer");
-      // timer for overall question time
-      appState.timer = setTimeout(gameplay.timeUp,1000*appState.countdownTime);
-      // start/access an actual countdown of the seconds using setInterval
-      // store in var so it can be stopped 
-      appState.interval = setInterval(gameplay.countdownSeconds,  1000*1);
+
+    startCountdown: function() {
+      console.log("time on the clock: " + appState.timeToAnswer);
+      appState.interval = setInterval(gameplay.countdownSeconds, 1000*1);
     },
+
     // start countdown (so timer will be displayed as a countdown )
     countdownSeconds: function() {
-      if(appState.countdownTime > 0){
-        appState.countdownTime--;
-        console.log(appState.countdownTime);
+      if(appState.timeToAnswer > 0){
+        appState.timeToAnswer--;
+        console.log("seconds remaining: " + appState.timeToAnswer);
       } else {
         gameplay.stopCountdown();
+        gameplay.checkAnswer(appState.userAnswer);
       }
     },
 
     stopCountdown: function() {
       clearInterval(appState.interval);
+      gameplay.resetCountdownTimes();
     },
 
-    // pause timer (e.g. if answered before time up)
-    pauseTimer: function() {
-      clearTimeout(appState.timeout);
-      gameplay.stopCountdown();
-      console.log("timer and countdown paused!");
+    resetCountdownTimes: function() {
+      appState.timeToAnswer = 5;
+      appState.timeBeforeNextQuestion = 3;
     },
-    // reset timer
-    resetTimer: function() {
-      appState.countdownTime = 0;
-      gameplay.resetTimer();
-      gameplay.startTimer();
-    },
-    // reset countdown 
+
+    // shorter countdown for between questions! use if else in start countdown based on appstate.phase
+
     // store correct answer (for display if incorrect or timer runs out)
-    // check correct or incorrect answer
-    timeUp: function() {
-      console.log("check answer function called here");
-    }
+
+    checkAnswer: function(userAnswer) {
+      var correctAnswerKey = appState.currentQuestionObject.answer
+      //look up the key's value
+      var correctAnswerValue = appState.currentQuestionObject[correctAnswerKey];
+
+      //if unanswered
+      if (userAnswer === null) {
+        console.log("Time's up! The correct answer was " + correctAnswerValue);
+        appState.unansweredCounter++;
+      }
+      // if correct: 
+      else if(userAnswer === correctAnswerKey) {
+        console.log(correctAnswerValue + " is correct!");
+        appState.correctCounter++;
+      }
+      // if incorrect
+      else if (userAnswer !== correctAnswerKey) {
+        console.log("Nope. The correct answer is " + correctAnswerValue);
+        appState.incorrectCounter++;
+      }
+
+      // wait some amount of time (countdown) and then call select next question
+    },
+
+
   };
   
 // ========
