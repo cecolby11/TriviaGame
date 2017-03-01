@@ -3,11 +3,11 @@ $(document).ready(function() {
 // APP STATE
 // =========
   var appState = {
-    // possible phases: initialize, waitingForAnswer, answeredInTime, unansweredInTime, prepareForNext, endGame
+    // possible phases: initialize, getQuestion, waitingForAnswer, answeredInTime, unansweredInTime, prepareForNext, endGame
     "phase":"initialize",
     "interval": null, // to hold the interval so it can be stopped 
-    "timeToAnswer": 3, //total seconds to answer
-    "timeBeforeNextQuestion": 2, //time before next question
+    "timeToAnswer": 6, //total seconds to answer
+    "timeBeforeNextQuestion": 3, //time before next question
 
     "questionIndex": 0, 
     "currentQuestionObject": null,
@@ -65,10 +65,11 @@ $(document).ready(function() {
   // user clicks answer - processes answer
   $(".choice-item").on("click", function(){
     if(appState.phase === "waitingForAnswer"){
+      //set phase to answeredInTime
+      appState.phase = "answeredInTime";
       var selectedKey = $(this).attr("data-name");
       appState.userAnswer = selectedKey;
       gameplay.stopCountdown();
-      appState.phase = "answeredInTime";
     }
   });
 
@@ -85,7 +86,9 @@ $(document).ready(function() {
     },
 
     selectNextQuestion: function() {
+      //PHASE is prepareForNext
       if (appState.questionIndex < data.questionObjects.length){
+      //set PHASE to waitingForAnswer
         appState.phase = "waitingForAnswer";
         appState.userAnswer = null;
         // get the next question object, update appState with the questionOBJECT (so it's easy to access its answers and options!)
@@ -94,7 +97,6 @@ $(document).ready(function() {
         data.questionObjects[appState.questionIndex].asked = true;
         appState.questionIndex++;
         console.log("current question: " + appState.currentQuestionObject.question);
-        //gameplay.startTimer();
         gameplay.startCountdown();
       } else {
         appState.phase = "endGame";
@@ -103,12 +105,20 @@ $(document).ready(function() {
     },
 
     startCountdown: function() {
-      console.log("time on the clock: " + appState.timeToAnswer);
-      appState.interval = setInterval(gameplay.countdownSeconds, 1000*1);
+      //PHASE: waitingForAnswer
+      console.log("start the clock");
+      // don't allow interval to be setup multiple times over itself 
+      if(appState.interval === null) {
+        appState.interval = setInterval(gameplay.countdownSeconds, 1000*1);
+      } else {
+        console.log("there's somethign here!");
+      }
     },
 
     // start countdown (so timer will be displayed as a countdown )
     countdownSeconds: function() {
+      console.log("countdownSeconds phase " + appState.phase); 
+      //PHASE: waitingForAnswer or prepareForNext
       if(appState.phase==="waitingForAnswer"){
         //if(appState.timeToAnswer > 0){
         if(appState.timeToAnswer > 0){
@@ -126,23 +136,36 @@ $(document).ready(function() {
           appState.timeBeforeNextQuestion--;
           console.log(appState.timeBeforeNextQuestion);
         } else {
-          gameplay.selectNextQuestion();
+          appState.phase = "getQuestion";
+          gameplay.stopCountdown(); // every start call needs a stop call to clear the interval so it doesn't double up
         }
-      }
+      } 
     },
 
     stopCountdown: function() {
+      console.log("clock stopped!");
+      //PHASE: unansweredInTime or answeredInTime
       clearInterval(appState.interval);
-      gameplay.resetCountdownTimes();
-      gameplay.checkAnswer(appState.userAnswer);
+      gameplay.resetCountdown();
+
+      if(appState.phase === "answeredInTime" || appState.phase === "unansweredInTime") {
+        gameplay.checkAnswer(appState.userAnswer);
+      } 
+      else if(appState.phase === "getQuestion") {
+        gameplay.selectNextQuestion();
+      }
     },
 
-    resetCountdownTimes: function() {
+    resetCountdown: function() {
       appState.timeToAnswer = 5;
       appState.timeBeforeNextQuestion = 3;
+      // make sure to RESET the interval value too so it doesn't double up
+      appState.interval = null;
     },
 
     checkAnswer: function(userAnswer) {
+      console.log("checkAnswer");
+      //PHASE: unansweredInTime or answeredInTime
       var correctAnswerKey = appState.currentQuestionObject.answer
       //look up the key's value
       var correctAnswerValue = appState.currentQuestionObject[correctAnswerKey];
@@ -166,17 +189,18 @@ $(document).ready(function() {
       // wait some amount of time (countdown) 
 
       //and then call select next question
+      // set PHASE to prepareForNext
       appState.phase = "prepareForNext";
       gameplay.startCountdown();
 
     },
 
     endGame: function() {
+      //PHASE: endGame
       console.log("gameover");
       console.log("correct: " + appState.correctCounter);
       console.log("incorrect: " + appState.incorrectCounter);
       console.log("unanswered: " + appState.unansweredCounter);
-      gameplay.initializeApp();
     }
 
   };
