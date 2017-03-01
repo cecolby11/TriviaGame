@@ -3,7 +3,7 @@ $(document).ready(function() {
 // APP STATE
 // =========
   var appState = {
-    // phase: initialize, waitingForAnswer, answered, unanswered, noQuestionsLeft
+    // possible phases: initialize, waitingForAnswer, answeredInTime, unansweredInTime, prepareForNext, endGame
     "phase":"initialize",
     "interval": null, // to hold the interval so it can be stopped 
     "timeToAnswer": 3, //total seconds to answer
@@ -15,7 +15,18 @@ $(document).ready(function() {
     // correct, incorrect, unanswered counters
     "correctCounter": 0,
     "incorrectCounter": 0,
-    "unansweredCounter": 0 
+    "unansweredCounter": 0,
+
+    resetAppState : function() {
+      appState.phase = "initialize";
+      appState.interval = null;
+      appState.questionIndex = 0;
+      appState.currentQuestionObject = null;
+      appState.userAnswer = null;
+      appState.correctCounter =  0;
+      appState.incorrectCounter = 0;
+      appState.unansweredCounter = 0;
+    }
   };
 
   var data = {
@@ -27,24 +38,40 @@ $(document).ready(function() {
       "c": "option c here",
       "d": "option d here",
       "answer": "a", //gets the value stored in the key that "answer" points to
-      "asked":0
+      "asked": false
     },
     {"question": "Q2 will go here",
       "a": "option a here",
       "b": "option b here",
       "c": "option c here",
       "d": "option d here",
-      "answer": function() {return this.d},
+      "answer": "d",
       "asked": false
     },
-    ]
+    ],
+
+    resetData: function() {
+      for(var i = 0; i < this.questionObjects.length; i++){
+        data.questionObjects[i].asked = false;
+      }
+    }
   };
 
 // ================
 // EVENT MANAGEMENT
 // ================
   // click start - begins game (start timer, select question, show question, etc.)
+
   // user clicks answer - processes answer
+  $(".choice-item").on("click", function(){
+    if(appState.phase === "waitingForAnswer"){
+      var selectedKey = $(this).attr("data-name");
+      appState.userAnswer = selectedKey;
+      gameplay.stopCountdown();
+      appState.phase = "answeredInTime";
+    }
+  });
+
   // click start over button - resets game
   
 // ===============
@@ -53,22 +80,26 @@ $(document).ready(function() {
   var gameplay = {
   // initialize/reset game state 
     initializeApp: function() {
-      appState.phase = "reset";
-      appState.countdown = 0;
-      appState.correctCounter = 0;
-      appState.incorrectCounter = 0;
-      appState.unansweredCounter = 0;
+      appState.resetAppState();
+      data.resetData();
     },
 
     selectNextQuestion: function() {
-      // get the next question object, update appState with the questionOBJECT (so it's easy to access its answers and options!)
-      appState.currentQuestionObject = data.questionObjects[appState.questionIndex];
-      //increment question index in preparation for next time 
-      appState.questionIndex++;
-      console.log("current question: " + appState.currentQuestionObject.question);
-      console.log("index incremented to: " + appState.questionIndex);
-      //gameplay.startTimer();
-      gameplay.startCountdown();
+      if (appState.questionIndex < data.questionObjects.length){
+        appState.phase = "waitingForAnswer";
+        appState.userAnswer = null;
+        // get the next question object, update appState with the questionOBJECT (so it's easy to access its answers and options!)
+        appState.currentQuestionObject = data.questionObjects[appState.questionIndex];
+        //increment question index in preparation for next time 
+        data.questionObjects[appState.questionIndex].asked = true;
+        appState.questionIndex++;
+        console.log("current question: " + appState.currentQuestionObject.question);
+        //gameplay.startTimer();
+        gameplay.startCountdown();
+      } else {
+        appState.phase = "endGame";
+        gameplay.endGame();
+      }
     },
 
     startCountdown: function() {
@@ -78,28 +109,38 @@ $(document).ready(function() {
 
     // start countdown (so timer will be displayed as a countdown )
     countdownSeconds: function() {
-      if(appState.timeToAnswer > 0){
-        appState.timeToAnswer--;
-        console.log("seconds remaining: " + appState.timeToAnswer);
-      } else {
-        gameplay.stopCountdown();
-        gameplay.checkAnswer(appState.userAnswer);
+      if(appState.phase==="waitingForAnswer"){
+        //if(appState.timeToAnswer > 0){
+        if(appState.timeToAnswer > 0){
+          appState.phase = "waitingForAnswer";
+          appState.timeToAnswer--;
+          console.log("seconds remaining: " + appState.timeToAnswer);
+        } else {
+          appState.phase = "unansweredInTime";
+          gameplay.stopCountdown();
+        }
+      } 
+      else if(appState.phase==="prepareForNext"){
+        if(appState.timeBeforeNextQuestion > 0){
+          appState.phase = "prepareForNext";
+          appState.timeBeforeNextQuestion--;
+          console.log(appState.timeBeforeNextQuestion);
+        } else {
+          gameplay.selectNextQuestion();
+        }
       }
     },
 
     stopCountdown: function() {
       clearInterval(appState.interval);
       gameplay.resetCountdownTimes();
+      gameplay.checkAnswer(appState.userAnswer);
     },
 
     resetCountdownTimes: function() {
       appState.timeToAnswer = 5;
       appState.timeBeforeNextQuestion = 3;
     },
-
-    // shorter countdown for between questions! use if else in start countdown based on appstate.phase
-
-    // store correct answer (for display if incorrect or timer runs out)
 
     checkAnswer: function(userAnswer) {
       var correctAnswerKey = appState.currentQuestionObject.answer
@@ -122,9 +163,21 @@ $(document).ready(function() {
         appState.incorrectCounter++;
       }
 
-      // wait some amount of time (countdown) and then call select next question
+      // wait some amount of time (countdown) 
+
+      //and then call select next question
+      appState.phase = "prepareForNext";
+      gameplay.startCountdown();
+
     },
 
+    endGame: function() {
+      console.log("gameover");
+      console.log("correct: " + appState.correctCounter);
+      console.log("incorrect: " + appState.incorrectCounter);
+      console.log("unanswered: " + appState.unansweredCounter);
+      gameplay.initializeApp();
+    }
 
   };
   
@@ -178,3 +231,4 @@ $(document).ready(function() {
 // pick question randomly
 // get question that hasn't been asked yet by checking .asked value
 // set countdown from 5 to a more reasonable number for each question
+ // shorter countdown for between questions! use if else in start countdown based on appstate.phase
