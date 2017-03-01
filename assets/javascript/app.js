@@ -83,6 +83,8 @@ $(document).ready(function() {
     initializeApp: function() {
       appState.resetAppState();
       data.resetData();
+      appState.phase = "getQuestion";
+      gameplay.selectNextQuestion();
     },
 
     selectNextQuestion: function() {
@@ -225,10 +227,7 @@ $(document).ready(function() {
 // =============
 
   // call initialize app fxn 
-
-
-
-  gameplay.selectNextQuestion();
+  gameplay.initializeApp();
 
 });
 
