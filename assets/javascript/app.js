@@ -1,62 +1,192 @@
-$(document).ready(function() {
-// =========
-// APP STATE
-// =========
-  var appState = {
-    // possible phases: initialize, getQuestion, waitingForAnswer, answeredInTime, unansweredInTime, prepareForNext, endGame
-    "phase":"initialize",
-    "interval": null, // to hold the interval so it can be stopped 
-    "timeToAnswer": 6, //total seconds to answer
-    "timeBeforeNextQuestion": 3, //time before next question
+// ================
+// APP STATE & DATA
+// ================
+var setup
+var appState, data;
 
-    "questionIndex": 0, 
-    "currentQuestionObject": null,
-    "userAnswer": null,
-    // correct, incorrect, unanswered counters
-    "correctCounter": 0,
-    "incorrectCounter": 0,
-    "unansweredCounter": 0,
+function resetAppState() {
+  return {
+    // possible phases: initial, getQuestion, waitingForAnswer, answeredInTime, unansweredInTime, prepareForNext, endGame
+    phase: "initial",
 
-    resetAppState : function() {
-      appState.phase = "initialize";
-      appState.interval = null;
-      appState.questionIndex = 0;
-      appState.currentQuestionObject = null;
-      appState.userAnswer = null;
-      appState.correctCounter =  0;
-      appState.incorrectCounter = 0;
-      appState.unansweredCounter = 0;
-    }
+    interval: null, // to hold the interval so it can be stopped 
+    timeToAnswer: 6,
+    timeBeforeNextQuestion: 3,
+
+    questionIndex: 0,
+    currentQuestionObject: null,
+    userAnswer: null,
+
+    correctCounter: 0,
+    incorrectCounter: 0,
+    unansweredCounter: 0,
   };
+}
 
-  var data = {
-    //array of questions, options, and their answers, each as an object
-    "questionObjects":[
-    {"question": "Q1 will go here",
-      "a": "option a here",
-      "b": "option b here",
-      "c": "option c here",
-      "d": "option d here",
-      "answer": "a", //gets the value stored in the key that "answer" points to
-      "asked": false
-    },
-    {"question": "Q2 will go here",
-      "a": "option a here",
-      "b": "option b here",
-      "c": "option c here",
-      "d": "option d here",
-      "answer": "d",
-      "asked": false
-    },
-    ],
-
-    resetData: function() {
-      for(var i = 0; i < this.questionObjects.length; i++){
-        data.questionObjects[i].asked = false;
+function resetData() {
+ return [
+      {"question": "Q1 will go here",
+        "a": "option a here",
+        "b": "option b here",
+        "c": "option c here",
+        "d": "option d here",
+        "answer": "a", //gets the value stored in the key that "answer" points to
+        "asked": false
+      },
+      {"question": "Q2 will go here",
+        "a": "option a here",
+        "b": "option b here",
+        "c": "option c here",
+        "d": "option d here",
+        "answer": "d",
+        "asked": false
       }
-    }
-  };
+    ]
+}
 
+// initialize/reset game state 
+function initializeApp() {
+  console.log("initializeApp");
+  appState = resetAppState();
+  // sets PHASE to initial
+  data = resetData();
+}
+
+// ===============
+// FUNCTIONS/LOGIC
+// ===============
+var gameplay = {
+
+  beginGame: function() {
+    if(appState.phase !== "initial") {
+      initializeApp();
+    }
+    console.log("gameplay.beginGame");
+    appState.phase = "prepareForNext";
+    gameplay.startCountdown();
+  },
+
+  selectNextQuestion: function() {
+    //PHASE is prepareForNext
+    if (appState.questionIndex < data.length){
+    //set PHASE to waitingForAnswer
+      appState.phase = "waitingForAnswer";
+      appState.userAnswer = null;
+      // get the next question object, update appState with the questionOBJECT (so it's easy to access its answers and options!)
+      appState.currentQuestionObject = data[appState.questionIndex];
+      //increment question index in preparation for next time 
+      data[appState.questionIndex].asked = true;
+      appState.questionIndex++;
+      console.log("current question: " + appState.currentQuestionObject.question);
+      gameplay.startCountdown();
+    } else {
+      appState.phase = "endGame";
+      gameplay.endGame();
+    }
+  },
+
+  startCountdown: function() {
+    //PHASE: waitingForAnswer
+    console.log("start the clock");
+    // don't allow interval to be setup multiple times over itself 
+    if(appState.interval === null) {
+      appState.interval = setInterval(gameplay.countdownSeconds, 1000*1);
+    } else {
+      console.log("there's somethign here!");
+    }
+  },
+
+  // start countdown (so timer will be displayed as a countdown )
+  countdownSeconds: function() {
+    //PHASE: waitingForAnswer or prepareForNext
+    if(appState.phase==="waitingForAnswer"){
+      //if(appState.timeToAnswer > 0){
+      if(appState.timeToAnswer > 0){
+        appState.phase = "waitingForAnswer";
+        appState.timeToAnswer--;
+        console.log("seconds remaining: " + appState.timeToAnswer);
+      } else {
+        appState.phase = "unansweredInTime";
+        gameplay.stopCountdown();
+      }
+    } 
+    else if(appState.phase==="prepareForNext"){
+      if(appState.timeBeforeNextQuestion > 0){
+        appState.phase = "prepareForNext";
+        appState.timeBeforeNextQuestion--;
+        console.log("ready? next Q in " + appState.timeBeforeNextQuestion);
+      } else {
+        appState.phase = "getQuestion";
+        gameplay.stopCountdown(); // every start call needs a stop call to clear the interval so it doesn't double up
+      }
+    } 
+  },
+
+  stopCountdown: function() {
+    console.log("clock stopped!");
+    //PHASE: unansweredInTime or answeredInTime
+    clearInterval(appState.interval);
+    gameplay.resetCountdown();
+
+    if(appState.phase === "answeredInTime" || appState.phase === "unansweredInTime") {
+      gameplay.checkAnswer(appState.userAnswer);
+    } 
+    else if(appState.phase === "getQuestion") {
+      gameplay.selectNextQuestion();
+    }
+  },
+
+  resetCountdown: function() {
+    appState.timeToAnswer = 5;
+    appState.timeBeforeNextQuestion = 3;
+    // make sure to RESET the interval value too so it doesn't double up
+    appState.interval = null;
+  },
+
+  checkAnswer: function(userAnswer) {
+    console.log("checkAnswer");
+    //PHASE: unansweredInTime or answeredInTime
+    var correctAnswerKey = appState.currentQuestionObject.answer
+    //look up the key's value
+    var correctAnswerValue = appState.currentQuestionObject[correctAnswerKey];
+
+    //if unanswered
+    if (userAnswer === null) {
+      console.log("Time's up! The correct answer was " + correctAnswerValue);
+      appState.unansweredCounter++;
+    }
+    // if correct: 
+    else if(userAnswer === correctAnswerKey) {
+      console.log(correctAnswerValue + " is correct!");
+      appState.correctCounter++;
+    }
+    // if incorrect
+    else if (userAnswer !== correctAnswerKey) {
+      console.log("Nope. The correct answer is " + correctAnswerValue);
+      appState.incorrectCounter++;
+    }
+
+    // wait some amount of time (countdown) 
+
+    //and then call select next question
+    // set PHASE to prepareForNext
+    appState.phase = "prepareForNext";
+    gameplay.startCountdown();
+
+  },
+
+  endGame: function() {
+    //PHASE: endGame
+    console.log("gameover");
+    console.log("correct: " + appState.correctCounter);
+    console.log("incorrect: " + appState.incorrectCounter);
+    console.log("unanswered: " + appState.unansweredCounter);
+  }
+
+};
+
+
+$(document).ready(function() {
 // ================
 // EVENT MANAGEMENT
 // ================
@@ -74,138 +204,11 @@ $(document).ready(function() {
   });
 
   // click start over button - resets game
-  
-// ===============
-// FUNCTIONS/LOGIC
-// ===============
-  var gameplay = {
-  // initialize/reset game state 
-    initializeApp: function() {
-      appState.resetAppState();
-      data.resetData();
-      appState.phase = "getQuestion";
-      gameplay.selectNextQuestion();
-    },
-
-    selectNextQuestion: function() {
-      //PHASE is prepareForNext
-      if (appState.questionIndex < data.questionObjects.length){
-      //set PHASE to waitingForAnswer
-        appState.phase = "waitingForAnswer";
-        appState.userAnswer = null;
-        // get the next question object, update appState with the questionOBJECT (so it's easy to access its answers and options!)
-        appState.currentQuestionObject = data.questionObjects[appState.questionIndex];
-        //increment question index in preparation for next time 
-        data.questionObjects[appState.questionIndex].asked = true;
-        appState.questionIndex++;
-        console.log("current question: " + appState.currentQuestionObject.question);
-        gameplay.startCountdown();
-      } else {
-        appState.phase = "endGame";
-        gameplay.endGame();
-      }
-    },
-
-    startCountdown: function() {
-      //PHASE: waitingForAnswer
-      console.log("start the clock");
-      // don't allow interval to be setup multiple times over itself 
-      if(appState.interval === null) {
-        appState.interval = setInterval(gameplay.countdownSeconds, 1000*1);
-      } else {
-        console.log("there's somethign here!");
-      }
-    },
-
-    // start countdown (so timer will be displayed as a countdown )
-    countdownSeconds: function() {
-      console.log("countdownSeconds phase " + appState.phase); 
-      //PHASE: waitingForAnswer or prepareForNext
-      if(appState.phase==="waitingForAnswer"){
-        //if(appState.timeToAnswer > 0){
-        if(appState.timeToAnswer > 0){
-          appState.phase = "waitingForAnswer";
-          appState.timeToAnswer--;
-          console.log("seconds remaining: " + appState.timeToAnswer);
-        } else {
-          appState.phase = "unansweredInTime";
-          gameplay.stopCountdown();
-        }
-      } 
-      else if(appState.phase==="prepareForNext"){
-        if(appState.timeBeforeNextQuestion > 0){
-          appState.phase = "prepareForNext";
-          appState.timeBeforeNextQuestion--;
-          console.log(appState.timeBeforeNextQuestion);
-        } else {
-          appState.phase = "getQuestion";
-          gameplay.stopCountdown(); // every start call needs a stop call to clear the interval so it doesn't double up
-        }
-      } 
-    },
-
-    stopCountdown: function() {
-      console.log("clock stopped!");
-      //PHASE: unansweredInTime or answeredInTime
-      clearInterval(appState.interval);
-      gameplay.resetCountdown();
-
-      if(appState.phase === "answeredInTime" || appState.phase === "unansweredInTime") {
-        gameplay.checkAnswer(appState.userAnswer);
-      } 
-      else if(appState.phase === "getQuestion") {
-        gameplay.selectNextQuestion();
-      }
-    },
-
-    resetCountdown: function() {
-      appState.timeToAnswer = 5;
-      appState.timeBeforeNextQuestion = 3;
-      // make sure to RESET the interval value too so it doesn't double up
-      appState.interval = null;
-    },
-
-    checkAnswer: function(userAnswer) {
-      console.log("checkAnswer");
-      //PHASE: unansweredInTime or answeredInTime
-      var correctAnswerKey = appState.currentQuestionObject.answer
-      //look up the key's value
-      var correctAnswerValue = appState.currentQuestionObject[correctAnswerKey];
-
-      //if unanswered
-      if (userAnswer === null) {
-        console.log("Time's up! The correct answer was " + correctAnswerValue);
-        appState.unansweredCounter++;
-      }
-      // if correct: 
-      else if(userAnswer === correctAnswerKey) {
-        console.log(correctAnswerValue + " is correct!");
-        appState.correctCounter++;
-      }
-      // if incorrect
-      else if (userAnswer !== correctAnswerKey) {
-        console.log("Nope. The correct answer is " + correctAnswerValue);
-        appState.incorrectCounter++;
-      }
-
-      // wait some amount of time (countdown) 
-
-      //and then call select next question
-      // set PHASE to prepareForNext
-      appState.phase = "prepareForNext";
-      gameplay.startCountdown();
-
-    },
-
-    endGame: function() {
-      //PHASE: endGame
-      console.log("gameover");
-      console.log("correct: " + appState.correctCounter);
-      console.log("incorrect: " + appState.incorrectCounter);
-      console.log("unanswered: " + appState.unansweredCounter);
+  $(".start-button").on("click", function() {
+    if(appState.phase === "initial" || appState.phase === "endGame"){
+      gameplay.beginGame();
     }
-
-  };
+  })
   
 // ========
 // DISPLAY
@@ -227,7 +230,7 @@ $(document).ready(function() {
 // =============
 
   // call initialize app fxn 
-  gameplay.initializeApp();
+  initializeApp();
 
 });
 
