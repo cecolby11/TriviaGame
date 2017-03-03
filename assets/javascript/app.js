@@ -25,110 +25,122 @@ function resetAppState() {
 }
 
 function resetData() {
- return [
-      {'question': 'a typical serving of milk chocolate has the same amount of caffeine as a...',
-        'options' : {
-          'a': 'bottle of coke',
-          'b': 'cup of regular coffee',
-          'c': 'cup of black tea',
-          'd': 'cup of decaf coffee'
-        },
-        'answer': 'd'
-      },
-      {'question': 'Which milk chocolate ingredient is missing in white chocolate?',
-        'options' : {
-          'a': 'sugar',
-          'b': 'vanilla',
-          'c': 'cocoa butter',
-          'd': 'cocoa liquor',
-        },
-        'answer': 'd'
-      },
-      {'question': 'There\'s a correlation a country\'s chocolate consumption and number of...',
+ var array = [
+    {'question': 'a typical serving of milk chocolate has the same amount of caffeine as a...',
       'options' : {
-          'a': 'Olive varieties',
-          'b': 'Golf Courses',
-          'c': 'Newspapers',
-          'd': 'Sommeliers',
-          'e': 'Nobel Laureates',
-          'f': 'Fresh Lemon Imports'
-        },
-        'answer': 'e'
+        'a': 'bottle of coke',
+        'b': 'cup of regular coffee',
+        'c': 'cup of black tea',
+        'd': 'cup of decaf coffee'
       },
-      {'question': 'It takes about ___ cacao beans to make 1lb of chocolate',
-        'options' : {
-          'a': '50',
-          'b': '200',
-          'c': '500',
-          'd': '900'
-        },
-        'answer': 'b'
+      'answer': 'd'
+    },
+    {'question': 'Which milk chocolate ingredient is missing in white chocolate?',
+      'options' : {
+        'a': 'sugar',
+        'b': 'vanilla',
+        'c': 'cocoa butter',
+        'd': 'cocoa liquor',
       },
-      {'question': 'Milton Hersey\'s first love was...',
-        'options': {
-          'a': 'Chocolate',
-          'b': 'Coffee',
-          'c': 'Chili',
-          'd': 'Caramel',
-          'e': 'Gum'
-        },
-        'answer': 'd'
+      'answer': 'd'
+    },
+    {'question': 'There\'s a correlation a country\'s chocolate consumption and number of...',
+    'options' : {
+        'a': 'Olive varieties',
+        'b': 'Golf Courses',
+        'c': 'Newspapers',
+        'd': 'Sommeliers',
+        'e': 'Nobel Laureates',
+        'f': 'Fresh Lemon Imports'
       },
-      {'question': 'The original Hersey\'s logo had...',
-        'options': {
-          'a': 'A baby in a cocoa bean',
-          'b': 'Milton\'s Initials',
-          'c': 'A Hershey Kiss Silhouette',
-          'd': 'Chocolate chips forming an H'
-        },
-        'answer': 'a'
+      'answer': 'e'
+    },
+    {'question': 'It takes about ___ cacao beans to make 1lb of chocolate',
+      'options' : {
+        'a': '50',
+        'b': '200',
+        'c': '500',
+        'd': '900'
       },
-      {'question': 'Bittersweet chocolate has a ______ cocoa percentage than semisweet chocolate.',
-        'options': {
-          'a': 'Higher',
-          'b': 'Lower'
-        },
-        'answer': 'a'
+      'answer': 'b'
+    },
+    {'question': 'Milton Hershey\'s first love was...',
+      'options': {
+        'a': 'Chocolate',
+        'b': 'Coffee',
+        'c': 'Chili',
+        'd': 'Caramel',
+        'e': 'Gum'
       },
-      {'question': 'Real white chocolate has a cacao percentage of around...',
-        'options': {
-          'a': '7%',
-          'b': '22%',
-          'c': '39%',
-          'd': '64%'
-        },
-        'answer': 'c'
+      'answer': 'd'
+    },
+    {'question': 'The original Hersey\'s logo had...',
+      'options': {
+        'a': 'A baby in a cocoa bean',
+        'b': 'Milton\'s Initials',
+        'c': 'A Hershey Kiss Silhouette',
+        'd': 'Chocolate chips forming an H'
       },
-      {'question': 'Most cocoa (70%) hails from...',
-        'options': {
-          'a': 'North America',
-          'b': 'Central America',
-          'c': 'South America',
-          'd': 'West Africa',
-          'e': 'Southern Africa'
-        },
-        'answer': 'd'
+      'answer': 'a'
+    },
+    {'question': 'Bittersweet chocolate has a ______ cocoa percentage than semisweet chocolate.',
+      'options': {
+        'a': 'Higher',
+        'b': 'Lower'
       },
-      {'question': 'The most cocoa (40% of the world supply) is produced by...',
-        'options': {
-          'a': 'Ghana',
-          'b': 'Brazil',
-          'c': 'Cote d\'Ivoire',
-          'd': 'Nigeria',
-          'e': 'Venezuela'
-        },
-        'answer': 'c'
+      'answer': 'a'
+    },
+    {'question': 'Real white chocolate has a cacao percentage of around...',
+      'options': {
+        'a': '7%',
+        'b': '22%',
+        'c': '39%',
+        'd': '64%'
       },
-      {'question': 'The __________ invented milk chocolate',
-        'options': {
-          'a': 'Americans',
-          'b': 'Belgians',
-          'c': 'Spanish',
-          'd': 'Swiss'
-        },
-        'answer': 'd'
-      }
-    ]
+      'answer': 'c'
+    },
+    {'question': 'Most cocoa (70%) hails from...',
+      'options': {
+        'a': 'North America',
+        'b': 'Central America',
+        'c': 'South America',
+        'd': 'West Africa',
+        'e': 'Southern Africa'
+      },
+      'answer': 'd'
+    },
+    {'question': 'The most cocoa (40% of the world supply) is produced by...',
+      'options': {
+        'a': 'Ghana',
+        'b': 'Brazil',
+        'c': 'Cote d\'Ivoire',
+        'd': 'Nigeria',
+        'e': 'Venezuela'
+      },
+      'answer': 'c'
+    },
+    {'question': 'The __________ invented milk chocolate',
+      'options': {
+        'a': 'Americans',
+        'b': 'Belgians',
+        'c': 'Spanish',
+        'd': 'Swiss'
+      },
+      'answer': 'd'
+    }
+  ];
+  var arrayRandom = shuffleArray(array);
+  return arrayRandom;
+}
+
+function shuffleArray(arr) {
+  return arr.sort(function () { 
+    if (Math.random()<.5) {
+      return -1; 
+    } else {
+      return 1;
+    }
+  });
 }
 
 function initializeApp() {
@@ -259,7 +271,6 @@ $(document).ready(function() {
         }, 1000*3);
       }
     }
-
   };
 
 // ================
