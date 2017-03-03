@@ -1,0 +1,51 @@
+/*page*/
+.page{
+  
+}
+.container{
+  background: pink;
+}
+.page-header {
+  margin: 0; /*remove default top*/
+}
+.jumbotron{
+  width: 90%;
+  margin: 20px auto;
+  text-align: center;
+  padding: 15px;
+}
+p{
+  font-size: 18px;
+}
+
+/* content sections*/
+.question-section{
+  text-align:center;
+}
+.question-text{
+
+}
+.result-section{
+  text-align: center;
+}
+.result-text{
+
+}
+.countdown-section{
+
+}
+.choice-items-section{
+
+}
+.choice-item{
+  margin: 10px auto;
+  display: block;
+  width: 50%;
+}
+.score-section{
+
+}
+.score{
+}
+.score-value{
+}

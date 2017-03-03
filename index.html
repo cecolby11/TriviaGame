@@ -15,35 +15,92 @@
 
 </head>
 <body>
+<div class="page">
+  <div class="container main-content">
 
-  <button class="start-button">New Game</button>
+  <div class="row">
+    <div class="col-md-12">
+      <!-- jumbotron -->
+      <div class="jumbotron">
+        <h2>Trivia!</h2>
+        <h4 class="instruction-section"></h4>
+        <button class="btn btn-default start-button">New Game</button>
+      </div>
+      <!-- /.jumbotron -->
+    </div>
+  </div>
+  
+  <div class="row" style="border: blue thick solid">
+    <div class="col-md-8">
+      <!-- panel -->
+      <div class="panel panel-default content-panel hidden">
+        <!-- panel body -->
+        <div class="panel-body">
+          <div class="page-header">
+            <h2>Your Question Is...</h2>
+          </div>
+
+          <div class="question-section">
+              <!-- question displayed here -->
+          </div>
+
+          <div class="result-section">
+          <!-- result displayed here -->
+          </div>
+
+          <div class="choice-items-section">
+            <!-- multiple choice items here as buttons-->
+          </div>
+        </div>
+        <!-- /.panel-body -->
+      </div>
+      <!-- /.panel -->
+    </div>
+
+    <div class="col-md-4">
+      <div class="row">
+        <div class="col-md-12">
+          <!-- panel -->
+          <div class="panel panel-default time-panel hidden">
+            <div class="panel-body">
+              <div class="page-header">
+                <h3>Time Check</h3>
+              </div>
+              <div class="countdown-section">
+                <!-- countdown displayed here -->
+              </div>
+            </div>
+          </div>
+          <!-- /.panel -->
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <!-- panel -->
+          <div class="panel panel-default score-section hidden">
+            <div class="panel-body">
+              <div class="page-header">
+                <h3>Your Score</h3>
+              </div>
+              <h4 class="score correct">Correct: </h4>
+              <h4 class="score incorrect">Incorrect: </h4>
+              <h4 class="score unanswered">Unanswered: </h4>
+            </div>
+            <!-- /.panel-body -->
+          </div>
+          <!-- /.panel -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- section divs -->
 
-  <div class="question-section">
-    <!-- question displayed here -->
+
   </div>
-
-  <div class="result-section">
-  <!-- result displayed here -->
-  </div>
-
-  <div class="countdown-section">
-    <!-- countdown displayed here -->
-  </div>
-
-  <div class="choice-items-section">
-    <!-- multiple choice items here as buttons-->
-  </div>
-
-  <div class="score-section hidden">
-    <h3 class="score correct">Correct Answers</h3>
-    <h3 class="score incorrect">Incorrect Answers</h3>
-    <h3 class="score unanswered">Unanswered Questions</h3>
-  </div>
-
-  <!-- section divs -->
-
-
+  <!-- /.container -->
+</div>
+<!-- /.page -->
 </body>
 </html>
