@@ -10,8 +10,8 @@ function resetAppState() {
     phase: 'initialize',
 
     interval: null, // to hold the interval so it can be stopped 
-    timeToAnswer: 25,
-    timeBeforeNextQuestion: 6,
+    timeToAnswer: 45,
+    timeBeforeNextQuestion: 5,
 
     questionIndex: 0,
     currentQuestionObject: null,
@@ -31,15 +31,46 @@ function resetAppState() {
 
 function resetData() {
  return [
-      {'question': 'Q1 will go here',
+      {'question': 'a typical serving of milk chocolate has the same amount of caffeine as a...',
         'options' : {
-          'a': 'SOME ANSWER HERE',
-          'b': 'ANOTHER ANSWER HERE',
-          'c': 'THIRD CHOICE HERE',
-          'd': 'FOURTH ONE',
-          'e': 'LAST'
+          'a': 'bottle of coke',
+          'b': 'cup of regular coffee',
+          'c': 'cup of black tea',
+          'd': 'cup of decaf coffee'
         },
-        'answer': 'a', //gets the value stored in the key that 'answer' points to
+        'answer': 'd', 
+        'asked': false
+      },
+      {'question': 'Which milk chocolate ingredient is missing in white chocolate?',
+        'options' : {
+          'a': 'cocoa butter',
+          'b': 'cocoa liquor',
+          'c': 'sugar',
+          'd': 'vanilla',
+        },
+        'answer': 'b',
+        'asked': false
+      },
+      {'question': 'There\'s a correlation a country\'s chocolate consumption and number of...',
+      'options' : {
+          'a': 'Olive varieties',
+          'b': 'Nobel Laureates',
+          'c': 'Newspapers',
+          'd': 'Sommeliers',
+          'e': 'Fresh Lemon Imports',
+          'f': 'Golf Courses'
+        },
+        'answer': 'b', 
+        'asked': false
+      },
+      {'question': 'It takes about ___ cacao beans to make 1lb of chocolate',
+        'options' : {
+          'a': '50',
+          'b': '200',
+          'c': '500',
+          'd': '900'
+        },
+        'answer': 'b', 
         'asked': false
       },
       {'question': 'Q2 will go here',
@@ -147,8 +178,8 @@ $(document).ready(function() {
     },
 
     resetCountdown: function() {
-      appState.timeToAnswer = 25;
-      appState.timeBeforeNextQuestion = 6;
+      appState.timeToAnswer = 45;
+      appState.timeBeforeNextQuestion = 10; //more after 1st 
       // make sure to RESET the interval value too so it doesn't double up
       appState.interval = null;
     },
@@ -287,7 +318,7 @@ $(document).ready(function() {
       var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
       if (appState.result === 'unanswered') {
-        var newText = 'Your time is up! The correct answer was ' + correctAnswerValue;
+        var newText = 'Your time is up! The correct answer was: ' + correctAnswerValue;
 
       }
       // if correct: 
@@ -296,7 +327,7 @@ $(document).ready(function() {
       }
       // if incorrect
       else if (appState.result === 'incorrect') {
-        var newText = 'Nope. The correct answer is ' + correctAnswerValue;
+        var newText = 'Nope. The correct answer is:  ' + correctAnswerValue;
       }
 
       var newElement = $('<p>' + newText + '</p>');
