@@ -6,7 +6,7 @@ var appState, data;
 
 function resetAppState() {
   return {
-    // possible phases: initial, getQuestion, waitingForAnswer, answeredInTime, unansweredInTime, prepareForNext, endGame
+    // possible phases: initial, getQuestion, waitingForAnswer, showResult, prepareForNext, endGame
     phase: "initial",
 
     interval: null, // to hold the interval so it can be stopped 
@@ -16,6 +16,7 @@ function resetAppState() {
     questionIndex: 0,
     currentQuestionObject: null,
     userAnswer: null,
+    result: null,
 
     scoreCounters: {
       correct: 0,
@@ -32,21 +33,21 @@ function resetData() {
  return [
       {"question": "Q1 will go here",
         "options" : {
-          "a": "option a here",
-          "b": "option b here",
-          "c": "option c here",
-          "d": "option d here",
-          "e": "option e here"
+          "a": "SOME ANSWER HERE",
+          "b": "ANOTHER ANSWER HERE",
+          "c": "THIRD CHOICE HERE",
+          "d": "FOURTH ONE",
+          "e": "LAST"
         },
         "answer": "a", //gets the value stored in the key that "answer" points to
         "asked": false
       },
       {"question": "Q2 will go here",
         "options" : {
-          "a": "option a here",
-          "b": "option b here",
-          "c": "option c here",
-          "d": "option d here"
+          "a": "I AM OPTION A",
+          "b": "I AM OPTION B",
+          "c": "I AM OPTION C",
+          "d": "I AM OPTION D"
         },
         "answer": "d",
         "asked": false
@@ -120,9 +121,8 @@ $(document).ready(function() {
         if(appState.timeToAnswer > 0){
           appState.phase = "waitingForAnswer";
           appState.timeToAnswer--;
-          console.log("seconds remaining: " + appState.timeToAnswer);
         } else {
-          appState.phase = "unansweredInTime";
+          appState.phase = "showResult";
           gameplay.stopCountdown();
         }
       } 
@@ -130,7 +130,6 @@ $(document).ready(function() {
         if(appState.timeBeforeNextQuestion > 0){
           appState.phase = "prepareForNext";
           appState.timeBeforeNextQuestion--;
-          console.log("ready? next Q in " + appState.timeBeforeNextQuestion);
         } else {
           appState.phase = "getQuestion";
           gameplay.stopCountdown(); // every start call needs a stop call to clear the interval so it doesn't double up
@@ -140,11 +139,11 @@ $(document).ready(function() {
 
     stopCountdown: function() {
       console.log("clock stopped!");
-      //PHASE: unansweredInTime or answeredInTime
+      //PHASE: showResult
       clearInterval(appState.interval);
       gameplay.resetCountdown();
 
-      if(appState.phase === "answeredInTime" || appState.phase === "unansweredInTime") {
+      if(appState.phase === "showResult") {
         gameplay.checkAnswer(appState.userAnswer);
       } 
       else if(appState.phase === "getQuestion") {
@@ -160,29 +159,32 @@ $(document).ready(function() {
     },
 
     checkAnswer: function(userAnswer) {
-      console.log("checkAnswer");
-      //PHASE: unansweredInTime or answeredInTime
+      //PHASE: showResult
       var correctAnswerKey = appState.currentQuestionObject.answer
       //look up the key's value
       var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
       //if unanswered
-      if (userAnswer === null) {
+      if (appState.userAnswer === null) {
         console.log("Time's up! The correct answer was " + correctAnswerValue);
+        appState.result = "unanswered";
         appState.scoreCounters.unanswered++;
       }
       // if correct: 
-      else if(userAnswer === correctAnswerKey) {
+      else if(appState.userAnswer === correctAnswerKey) {
         console.log(correctAnswerValue + " is correct!");
+        appState.result = "correct";
         appState.scoreCounters.correct++;
       }
       // if incorrect
-      else if (userAnswer !== correctAnswerKey) {
+      else if (appState.userAnswer !== correctAnswerKey) {
         console.log("Nope. The correct answer is " + correctAnswerValue);
+        appState.result = "incorrect";
         appState.scoreCounters.incorrect++;
       }
 
       // wait some amount of time (countdown) 
+      browser.refreshDisplay();
 
       //and then call select next question
       // set PHASE to prepareForNext
@@ -202,8 +204,8 @@ $(document).ready(function() {
   // use jquery event management so it applies to buttons created in the future
   $(".choice-items-section").on("click", ".choice-item",function(){
     if(appState.phase === "waitingForAnswer"){
-      //set phase to answeredInTime
-      appState.phase = "answeredInTime";
+      //set phase to showResult
+      appState.phase = "showResult";
       var selectedKey = $(this).attr("data-key");
       appState.userAnswer = selectedKey;
       gameplay.stopCountdown();
@@ -251,17 +253,20 @@ $(document).ready(function() {
     },
 
     renderCountdown: function() {
+      //refresh content each 1s interval
       $(".countdown-section").empty();
       if(appState.phase==="waitingForAnswer"){
-        if(appState.timeToAnswer > 0){
-          var newText = $("<h2>Seconds remaining: " + appState.timeToAnswer + "</h2>");
-        } else {
-          var newText = $("<h2>Time's up!</h2>");
+        var time = appState.timeToAnswer;
+        if(time >= 0){
+          if(time < 10){time = "0" + time;}
+          var newText = $("<h2>Time remaining: 00:" + time + "</h2>");
         }
       } 
       else if(appState.phase==="prepareForNext"){
-        if(appState.timeBeforeNextQuestion > 0){
-          var newText = $("<h2>Ready? Next question in " + appState.timeBeforeNextQuestion + "</h2>");
+        var time = appState.timeBeforeNextQuestion;
+        if(time > 0){
+          if(time<10){time = "0" + time;}
+          var newText = $("<h5>Next question revealed in 00:" + time + "</h5>");
         } else {
           //
         }
@@ -269,23 +274,38 @@ $(document).ready(function() {
       $(".countdown-section").append(newText);
     },
 
-    displayQuestionResult: function() {
-      
-    },
+    displayResult: function() {
+      var correctAnswerKey = appState.currentQuestionObject.answer
+      var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
-    displayCorrectAnswer: function() {
+      if (appState.result === "unanswered") {
+        var newText = "Your time is up! The correct answer was " + correctAnswerValue;
 
+      }
+      // if correct: 
+      else if(appState.result === "correct") {
+        var newText = "Great job! " + correctAnswerValue + " is correct!";
+      }
+      // if incorrect
+      else if (appState.result === "incorrect") {
+        var newText = "Nope. The correct answer is " + correctAnswerValue;
+      }
+
+      var newElement = $("<h3>" + newText + "</h3>");
+      newElement.addClass("result-text");
+      $(".result-section").append(newElement); 
     },
 
     displayEndScore: function() {
+      $(".score-value").remove();
       for(var i = 0; i < Object.keys(appState.scoreCounters).length; i++){
         var key = Object.keys(appState.scoreCounters)[i];
         if(appState.scoreCounters.hasOwnProperty(key)){
           var value = appState.scoreCounters[key];
-          //var newElement = $("<h4>" + value + "</h4>");
-          //newElement.attr("data-key",key);
-          //newElement.addClass("score score-value " + key);
-          $("."+key).append(value);
+          var newElement = $("<h4>" + value + "</h4>");
+          newElement.attr("data-key",key);
+          newElement.addClass("score score-value " + key);
+          $("."+key).append(newElement);
         }
       }
     },
@@ -299,6 +319,7 @@ $(document).ready(function() {
       $(".countdown-section").empty();
       $(".choice-items-section").empty();
       $(".question-section").empty();
+      $(".result-section").empty();
 
       if(appState.phase !== "endGame" && appState.phase !== "initial"){
         $(".start-button").addClass("hidden");
@@ -315,8 +336,8 @@ $(document).ready(function() {
         browser.renderQuestion(appState.currentQuestionObject);
         browser.renderChoiceItems(appState.currentQuestionObject);
       }
-      else if(appState.phase === "answeredInTime" || appState.phase === "unansweredInTime"){
-
+      else if(appState.phase === "showResult"){
+        browser.displayResult();
       }
       else if(appState.phase === "prepareForNext"){
 
