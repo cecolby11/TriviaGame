@@ -11,7 +11,7 @@ function resetAppState() {
 
     interval: null, // to hold the interval so it can be stopped 
     timeToAnswer: 25,
-    timeBeforeNextQuestion: 7,
+    timeBeforeNextQuestion: 6,
 
     questionIndex: 0,
     currentQuestionObject: null,
@@ -68,6 +68,8 @@ function initializeApp() {
 // ===============
 
 $(document).ready(function() {
+  // uses backstretch jquery plugin
+  $('body').backstretch('assets/images/chocolate.jpg');
 
   var gameplay = {
 
@@ -146,7 +148,7 @@ $(document).ready(function() {
 
     resetCountdown: function() {
       appState.timeToAnswer = 25;
-      appState.timeBeforeNextQuestion = 7;
+      appState.timeBeforeNextQuestion = 6;
       // make sure to RESET the interval value too so it doesn't double up
       appState.interval = null;
     },
@@ -308,16 +310,16 @@ $(document).ready(function() {
         var key = Object.keys(appState.scoreCounters)[i];
         if(appState.scoreCounters.hasOwnProperty(key)){
           var value = appState.scoreCounters[key];
-          var newElement = $('<p>' + value + '</p>');
+          var newElement = $('<p>' + key + ": " + value + '</p>');
           newElement.attr('data-key',key);
           newElement.addClass('score score-value ' + key);
-          $('.'+key).append(newElement);
+          $('.'+key).html(newElement);
         }
       }
     },
 
     displayEndText: function() {
-      var newText = 'Not bad, can you top that? Click \'new game\' to play again.';
+      var newText = 'Can you top that? Click \'new game\' to play again.';
       $('.instruction-section').html(newText);
     },
 
@@ -335,7 +337,6 @@ $(document).ready(function() {
         $('.instruction-section').empty();
         $('.start-button').addClass('hidden');
         $('.score-section').removeClass('hidden');
-        $('.content-panel').removeClass('hidden');
       }
 
       if(appState.phase === 'initialize'){
@@ -350,6 +351,7 @@ $(document).ready(function() {
 
       }
       else if(appState.phase === 'waitingForAnswer'){
+        $('.content-panel').removeClass('hidden');
         browser.renderQuestion(appState.currentQuestionObject);
         browser.renderChoiceItems(appState.currentQuestionObject);
       }
