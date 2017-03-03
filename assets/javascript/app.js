@@ -44,7 +44,7 @@ function resetData() {
       },
       'answer': 'd'
     },
-    {'question': 'There\'s a correlation a country\'s chocolate consumption and number of...',
+    {'question': 'There\'s a correlation between a country\'s chocolate consumption and number of...',
     'options' : {
         'a': 'Olive varieties',
         'b': 'Golf Courses',
