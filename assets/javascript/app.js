@@ -359,7 +359,7 @@ $(document).ready(function() {
 
     displayResult: function() {
       var correctAnswerKey = appState.currentQuestionObject.answer;
-      var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey].toLowerCase();
+      var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
       // if unanswered:
       if (appState.result === 'unanswered') {
