@@ -323,11 +323,11 @@ $(document).ready(function() {
       }
       // if correct: 
       else if(appState.result === 'correct') {
-        var newText = 'Great job! ' + correctAnswerValue + ' is correct!';
+        var newText = 'Great job, ' + correctAnswerValue + ' is correct!';
       }
       // if incorrect
       else if (appState.result === 'incorrect') {
-        var newText = 'Nope. The correct answer is:  ' + correctAnswerValue;
+        var newText = 'Nope, the correct answer is:  ' + correctAnswerValue;
       }
 
       var newElement = $('<p>' + newText + '</p>');
