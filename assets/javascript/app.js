@@ -133,6 +133,7 @@ function resetData() {
   return arrayRandom;
 }
 
+//helper function to shuffle the array a bit each initialization (this isn't a completely random shuffle but it's close which is good for trivia!)
 function shuffleArray(arr) {
   return arr.sort(function () { 
     if (Math.random()<.5) {
