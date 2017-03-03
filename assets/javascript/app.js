@@ -5,10 +5,9 @@ var appState, data;
 
 function resetAppState() {
   return {
-    // possible phases: initialize, firstQuestion, getQuestion, waitingForAnswer, showResult, prepareForNext, endGame
-    phase: 'initialize',
+    phase: 'initialize', // possible phases: initialize, firstQuestion, getQuestion, waitingForAnswer, showResult, prepareForNext, endGame
 
-    interval: null, // to hold the interval so it can be stopped 
+    interval: null, // so interval can be stopped 
     timeToAnswer: 30,
     timeBeforeNextQuestion: 5,
 
@@ -22,9 +21,6 @@ function resetAppState() {
       incorrect: 0,
       unanswered: 0
     }
-    // correctCounter: 0,
-    // incorrectCounter: 0,
-    // unansweredCounter: 0,
   };
 }
 
@@ -101,7 +97,7 @@ function resetData() {
           'c': '39%',
           'd': '64%'
         },
-        'answer': 'b'
+        'answer': 'c'
       },
       {'question': 'Most cocoa (70%) hails from...',
         'options': {
@@ -135,7 +131,6 @@ function resetData() {
     ]
 }
 
-// initialize/reset game state 
 function initializeApp() {
   appState = resetAppState();
   // sets PHASE to initialize
@@ -153,17 +148,18 @@ $(document).ready(function() {
   var gameplay = {
 
     beginGame: function() {
-      //PHASE : initialize
+      //PHASE was initialize
       if(appState.phase !== 'initialize') {
         initializeApp();
       }
+      // sets PHASE to firstQuestion
       appState.phase = 'firstQuestion';
       gameplay.startCountdown();
       browser.refreshDisplay();
     },
 
     selectNextQuestion: function() {
-      //PHASE is prepareForNext, set to waitingForAnswer
+      //PHASE was prepareForNext, set PHASE to waitingForAnswer
       appState.phase = 'waitingForAnswer';
       appState.userAnswer = null;
       appState.currentQuestionObject = data[appState.questionIndex];
@@ -173,8 +169,8 @@ $(document).ready(function() {
     },
 
     startCountdown: function() {
-      //PHASE: waitingForAnswer or prepareForNext(or firstQuestion)
-      // don't allow interval to be setup multiple times over itself 
+      //PHASE was waitingForAnswer or prepareForNext(/firstQuestion)
+      // don't double up interval over itself
       if(appState.interval === null) {
         if(appState.phase === 'firstQuestion'){
           appState.interval = setInterval(function() {
@@ -190,11 +186,9 @@ $(document).ready(function() {
       } 
     },
 
-    // start countdown (so timer will be displayed as a countdown )
     countdownSeconds: function() {
-      //PHASE: waitingForAnswer or prepareForNext (or firstQuestion)
+      //PHASE was waitingForAnswer or prepareForNext(/firstQuestion)
       if(appState.phase==='waitingForAnswer'){
-        //if(appState.timeToAnswer > 0){
         if(appState.timeToAnswer > 0){
           appState.timeToAnswer--;
         } else {
@@ -213,7 +207,7 @@ $(document).ready(function() {
     },
 
     stopCountdown: function() {
-      //PHASE: showResult
+      //PHASE was showResult
       clearInterval(appState.interval);
       gameplay.resetCountdown();
       if(appState.phase === 'showResult') {
@@ -226,15 +220,13 @@ $(document).ready(function() {
 
     resetCountdown: function() {
       appState.timeToAnswer = 30;
-      appState.timeBeforeNextQuestion = 5; //more after 1st 
-      // make sure to RESET the interval value too so it doesn't double up
+      appState.timeBeforeNextQuestion = 5;// RESET the interval value too so it doesn't double up
       appState.interval = null;
     },
 
     checkAnswer: function(userAnswer) {
-      //PHASE: showResult
-      var correctAnswerKey = appState.currentQuestionObject.answer
-      //look up the key's value
+      //PHASE was showResult
+      var correctAnswerKey = appState.currentQuestionObject.answer;
       var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
       //if unanswered
@@ -252,19 +244,19 @@ $(document).ready(function() {
         appState.result = 'incorrect';
         appState.scoreCounters.incorrect++;
       } 
-      //show the result and correct answer if not selected
+      //show the result 
       browser.refreshDisplay();
 
-      //wait some time and then continue
       if (appState.questionIndex < data.length) {
+        //wait and then continue questions
         appState.phase = 'prepareForNext';
         gameplay.startCountdown();
       } else {
         appState.phase = 'endGame';
-        // slight pause
+        // slight pause then show final score
         setTimeout(function() {
           browser.refreshDisplay();
-        }, 1000*3)
+        }, 1000*3);
       }
     }
 
@@ -273,13 +265,10 @@ $(document).ready(function() {
 // ================
 // EVENT MANAGEMENT
 // ================
-  // click start - begins game (start timer, select question, show question, etc.)
-
-  // user clicks answer - processes answer
-  // use jquery event management so it applies to buttons created in the future
+  // jquery event management -> so it applies to buttons created in the future
   $('.choice-items-section').on('click', '.choice-item',function(){
     if(appState.phase === 'waitingForAnswer'){
-      //set phase to showResult
+      //set PHASE to showResult
       appState.phase = 'showResult';
       var selectedKey = $(this).attr('data-key');
       appState.userAnswer = selectedKey;
@@ -287,7 +276,6 @@ $(document).ready(function() {
     }
   });
 
-  // click start over button - resets game
   $('.start-button').on('click', function() {
     if(appState.phase === 'initialize' || appState.phase === 'endGame'){
       gameplay.beginGame();
@@ -298,8 +286,6 @@ $(document).ready(function() {
 // DISPLAY
 // ========
   var browser = {
-  // display and hide buttons
-  // display timer
     renderQuestion: function(object) {
       $('.question-section').empty();
       var key = 'question';
@@ -325,12 +311,11 @@ $(document).ready(function() {
         }
 
       }
-      // }
     },
 
     renderCountdown: function() {
       //refresh content each 1s interval
-      $('.countdown-section').empty();
+      $('.countdown-section').html('<p>Ready?</p>');
       if(appState.phase==='waitingForAnswer'){
         var time = appState.timeToAnswer;
         if(time >= 0){
@@ -343,7 +328,7 @@ $(document).ready(function() {
           var newElement = $('<p>Continue in ' + time + '</p>');
         }
       }
-      $('.countdown-section').append(newElement);
+      $('.countdown-section').html(newElement);
     },
 
     displayFirstCountdown: function() {
@@ -361,9 +346,10 @@ $(document).ready(function() {
     },
 
     displayResult: function() {
-      var correctAnswerKey = appState.currentQuestionObject.answer
+      var correctAnswerKey = appState.currentQuestionObject.answer;
       var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
+      // if unanswered:
       if (appState.result === 'unanswered') {
         var newText = 'Your time is up! The correct answer was: <span class=\'answer\'>' + correctAnswerValue + "</span>";
 
@@ -372,7 +358,7 @@ $(document).ready(function() {
       else if(appState.result === 'correct') {
         var newText = 'Great job, <span class=\'answer\'>' + correctAnswerValue + '</span> is correct!';
       }
-      // if incorrect
+      // if incorrect:
       else if (appState.result === 'incorrect') {
         var newText = 'Nope, the correct answer is:  <span class=\'answer\'>' + correctAnswerValue + '</span>';
       }
@@ -401,13 +387,8 @@ $(document).ready(function() {
       $('.instruction-section').html(newText);
     },
 
-  // display whether correct or incorrect
-    // display correct answer if incorrect
-  // reset display for new game/game start
-
-  //refresh display function to call all of these. --> call it in each function in the logic section
     refreshDisplay: function() {
-      $('.countdown-section').empty();
+      $('.countdown-section').html("<p>Ready?</p>");
       $('.choice-items-section').empty();
       $('.result-section').empty();
 
@@ -430,7 +411,7 @@ $(document).ready(function() {
         $('.time-panel').removeClass('hidden');
       }
       else if(appState.phase === 'getQuestion'){
-
+        //
       }
       else if(appState.phase === 'waitingForAnswer'){
         $('.sidebar').addClass('col-md-3');
@@ -456,7 +437,6 @@ $(document).ready(function() {
         browser.displayEndText();
       }
     }
-
   };
 
 // =============
@@ -466,9 +446,3 @@ $(document).ready(function() {
   initializeApp();
 
 });
-
-// TODO: 
-// pick question randomly
-// get question that hasn't been asked yet by checking .asked value
-// set countdown from 5 to a more reasonable number for each question
- // shorter countdown for between questions! use if else in start countdown based on appstate.phase
