@@ -26,7 +26,7 @@ function resetAppState() {
 
 function resetData() {
  var array = [
-    {'question': 'a typical serving of milk chocolate has the same amount of caffeine as a...',
+    {'question': 'A typical serving of milk chocolate has the same amount of caffeine as a...',
       'options' : {
         'a': 'bottle of coke',
         'b': 'cup of regular coffee',
@@ -359,11 +359,11 @@ $(document).ready(function() {
 
     displayResult: function() {
       var correctAnswerKey = appState.currentQuestionObject.answer;
-      var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
+      var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey].toLowerCase();
 
       // if unanswered:
       if (appState.result === 'unanswered') {
-        var newText = 'Your time is up! The correct answer was: <span class=\'answer\'>' + correctAnswerValue + "</span>";
+        var newText = 'Your time is up! The correct answer was <span class=\'answer\'>' + correctAnswerValue + "</span>";
 
       }
       // if correct: 
@@ -372,7 +372,7 @@ $(document).ready(function() {
       }
       // if incorrect:
       else if (appState.result === 'incorrect') {
-        var newText = 'Nope, the correct answer is:  <span class=\'answer\'>' + correctAnswerValue + '</span>';
+        var newText = 'Nope, the correct answer is  <span class=\'answer\'>' + correctAnswerValue + '</span>';
       }
 
       var newElement = $('<p>' + newText + '</p>');
