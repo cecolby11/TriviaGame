@@ -4,9 +4,10 @@
   --lightest-color: #dcd9c6;
   --dark-color: #1b1924;
   --darkgreen-color: #52591f;
-  --purple-color: #3f3232;
+  --purple-color: #614D61;
   --brown-color: #74593d;
 }
+
 
 /*page styling*/
 .page{
@@ -38,12 +39,14 @@ footer{
   padding: 15px;
 }
 .jumbotron h1 {
-  color: var(--purple-color);
+  color: var(--brown-color);
   font-size: 38px;
+}
+.jumbotron p {
+  font-weight: normal;
 }
 p{
   font-size: 18px;
-  font-weight: normal;
 }
 .main-content .panel {
   background: #eee;
@@ -54,28 +57,34 @@ p{
 }
 .start-button{
   color: var(--brown-color);
+  font-size: larger;
 }
+.start-button:hover{
+  color: var(--dark-color);
+  background: var(--light-color);
+}
+
 
 /* content sections*/
 .question-section{
   text-align:center;
+  margin: 30px;
 }
 .question-text{
-  font-size: 32px;
-  padding: 12px;
+  font-size: 28px;
+  padding: 20px;
   color: var(--darkgreen-color);
+  font-weight: normal;
 }
 .result-section{
   text-align: center;
 }
 .result-text{
-
+  color: var(--purple-color);
 }
-.countdown-section{
-
-}
-.choice-items-section{
-
+.answer{
+  color: purple;
+  font-size: 24px;
 }
 .choice-item{
   margin: 12px auto;
@@ -83,15 +92,10 @@ p{
   width: 40%;
   background: var(--lightest-color);
   color: var(--darkgreen-color);
+  font-size: 18px;
+  white-space: normal; ; /*wrap lines if button text too big (not default in button)*/
 }
 .choice-item:hover{
   background: var(--darkgreen-color);
   color: var(--lightest-color);
-}
-.score-section{
-
-}
-.score{
-}
-.score-value{
 }

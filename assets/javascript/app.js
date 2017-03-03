@@ -1,7 +1,6 @@
 // ================
 // APP STATE & DATA
 // ================
-var setup
 var appState, data;
 
 function resetAppState() {
@@ -10,7 +9,7 @@ function resetAppState() {
     phase: 'initialize',
 
     interval: null, // to hold the interval so it can be stopped 
-    timeToAnswer: 45,
+    timeToAnswer: 30,
     timeBeforeNextQuestion: 5,
 
     questionIndex: 0,
@@ -38,30 +37,27 @@ function resetData() {
           'c': 'cup of black tea',
           'd': 'cup of decaf coffee'
         },
-        'answer': 'd', 
-        'asked': false
+        'answer': 'd'
       },
       {'question': 'Which milk chocolate ingredient is missing in white chocolate?',
         'options' : {
-          'a': 'cocoa butter',
-          'b': 'cocoa liquor',
-          'c': 'sugar',
-          'd': 'vanilla',
+          'a': 'sugar',
+          'b': 'vanilla',
+          'c': 'cocoa butter',
+          'd': 'cocoa liquor',
         },
-        'answer': 'b',
-        'asked': false
+        'answer': 'd'
       },
       {'question': 'There\'s a correlation a country\'s chocolate consumption and number of...',
       'options' : {
           'a': 'Olive varieties',
-          'b': 'Nobel Laureates',
+          'b': 'Golf Courses',
           'c': 'Newspapers',
           'd': 'Sommeliers',
-          'e': 'Fresh Lemon Imports',
-          'f': 'Golf Courses'
+          'e': 'Nobel Laureates',
+          'f': 'Fresh Lemon Imports'
         },
-        'answer': 'b', 
-        'asked': false
+        'answer': 'e'
       },
       {'question': 'It takes about ___ cacao beans to make 1lb of chocolate',
         'options' : {
@@ -70,25 +66,77 @@ function resetData() {
           'c': '500',
           'd': '900'
         },
-        'answer': 'b', 
-        'asked': false
+        'answer': 'b'
       },
-      {'question': 'Q2 will go here',
-        'options' : {
-          'a': 'I AM OPTION A',
-          'b': 'I AM OPTION B',
-          'c': 'I AM OPTION C',
-          'd': 'I AM OPTION D'
+      {'question': 'Milton Hersey\'s first love was...',
+        'options': {
+          'a': 'Chocolate',
+          'b': 'Coffee',
+          'c': 'Chili',
+          'd': 'Caramel',
+          'e': 'Gum'
         },
-        'answer': 'd',
-        'asked': false
+        'answer': 'd'
+      },
+      {'question': 'The original Hersey\'s logo had...',
+        'options': {
+          'a': 'A baby in a cocoa bean',
+          'b': 'Milton\'s Initials',
+          'c': 'A Hershey Kiss Silhouette',
+          'd': 'Chocolate chips forming an H'
+        },
+        'answer': 'a'
+      },
+      {'question': 'Bittersweet chocolate has a ______ cocoa percentage than semisweet chocolate.',
+        'options': {
+          'a': 'Higher',
+          'b': 'Lower'
+        },
+        'answer': 'a'
+      },
+      {'question': 'Real white chocolate has a cacao percentage of around...',
+        'options': {
+          'a': '7%',
+          'b': '22%',
+          'c': '39%',
+          'd': '64%'
+        },
+        'answer': 'b'
+      },
+      {'question': 'Most cocoa (70%) hails from...',
+        'options': {
+          'a': 'North America',
+          'b': 'Central America',
+          'c': 'South America',
+          'd': 'West Africa',
+          'e': 'Southern Africa'
+        },
+        'answer': 'd'
+      },
+      {'question': 'The most cocoa (40% of the world supply) is produced by...',
+        'options': {
+          'a': 'Ghana',
+          'b': 'Brazil',
+          'c': 'Cote d\'Ivoire',
+          'd': 'Nigeria',
+          'e': 'Venezuela'
+        },
+        'answer': 'c'
+      },
+      {'question': 'The __________ invented milk chocolate',
+        'options': {
+          'a': 'Americans',
+          'b': 'Belgians',
+          'c': 'Spanish',
+          'd': 'Swiss'
+        },
+        'answer': 'd'
       }
     ]
 }
 
 // initialize/reset game state 
 function initializeApp() {
-  console.log('initializeApp');
   appState = resetAppState();
   // sets PHASE to initialize
   data = resetData();
@@ -100,7 +148,7 @@ function initializeApp() {
 
 $(document).ready(function() {
   // uses backstretch jquery plugin
-  $('body').backstretch('assets/images/chocolate.jpg');
+  $('body').backstretch('assets/images/chocolate2.jpg');
 
   var gameplay = {
 
@@ -119,7 +167,6 @@ $(document).ready(function() {
       appState.phase = 'waitingForAnswer';
       appState.userAnswer = null;
       appState.currentQuestionObject = data[appState.questionIndex];
-      data[appState.questionIndex].asked = true;
       appState.questionIndex++;
       gameplay.startCountdown();
       browser.refreshDisplay();
@@ -178,8 +225,8 @@ $(document).ready(function() {
     },
 
     resetCountdown: function() {
-      appState.timeToAnswer = 45;
-      appState.timeBeforeNextQuestion = 10; //more after 1st 
+      appState.timeToAnswer = 30;
+      appState.timeBeforeNextQuestion = 5; //more after 1st 
       // make sure to RESET the interval value too so it doesn't double up
       appState.interval = null;
     },
@@ -318,16 +365,16 @@ $(document).ready(function() {
       var correctAnswerValue = appState.currentQuestionObject.options[correctAnswerKey];
 
       if (appState.result === 'unanswered') {
-        var newText = 'Your time is up! The correct answer was: ' + correctAnswerValue;
+        var newText = 'Your time is up! The correct answer was: <span class=\'answer\'>' + correctAnswerValue + "</span>";
 
       }
       // if correct: 
       else if(appState.result === 'correct') {
-        var newText = 'Great job, ' + correctAnswerValue + ' is correct!';
+        var newText = 'Great job, <span class=\'answer\'>' + correctAnswerValue + '</span> is correct!';
       }
       // if incorrect
       else if (appState.result === 'incorrect') {
-        var newText = 'Nope, the correct answer is:  ' + correctAnswerValue;
+        var newText = 'Nope, the correct answer is:  <span class=\'answer\'>' + correctAnswerValue + '</span>';
       }
 
       var newElement = $('<p>' + newText + '</p>');
@@ -373,8 +420,12 @@ $(document).ready(function() {
       if(appState.phase === 'initialize'){
         $('.score-section').addClass('hidden');
         $('.content-panel').addClass('hidden');
+        $('.sidebar').addClass('col-md-12');
+        $('.sidebar').removeClass('col-md-3');
       }
       else if (appState.phase === 'firstQuestion'){
+        $('.sidebar').addClass('col-md-12');
+        $('.sidebar').removeClass('col-md-3');
         $('.score-section').addClass('hidden');
         $('.time-panel').removeClass('hidden');
       }
@@ -382,6 +433,8 @@ $(document).ready(function() {
 
       }
       else if(appState.phase === 'waitingForAnswer'){
+        $('.sidebar').addClass('col-md-3');
+        $('.sidebar').removeClass('col-md-12');
         $('.content-panel').removeClass('hidden');
         browser.renderQuestion(appState.currentQuestionObject);
         browser.renderChoiceItems(appState.currentQuestionObject);
@@ -398,6 +451,8 @@ $(document).ready(function() {
         $('.start-button').removeClass('hidden');
         $('.content-panel').addClass('hidden');
         $('.time-panel').addClass('hidden');
+        $('.sidebar').addClass('col-md-12');
+        $('.sidebar').removeClass('col-md-3');
         browser.displayEndText();
       }
     }
@@ -411,25 +466,6 @@ $(document).ready(function() {
   initializeApp();
 
 });
-
-
-// in order: 
-// press start to start the game
-// timer begins
-// timer applies to that question, not the entire game
-// display timer which is counting down
-// display one question and answer options 
-// user clicks answer
-// timer stops
-// game tells us if correct or incorrect
-// gives correct answer if incorrect
-// moves on to next question * with no user input * 
-// resets timer and counts down, goes to next question
-// if timer hits 0 before answer, shows we're out of time and shows correct answer
-// with no user input, moves on to next question
-// at end, shows total correct, incorrect, unanswered
-// start over button
-// resets the game when you click it, does not reload the page
 
 // TODO: 
 // pick question randomly
