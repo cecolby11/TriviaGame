@@ -17,9 +17,14 @@ function resetAppState() {
     currentQuestionObject: null,
     userAnswer: null,
 
-    correctCounter: 0,
-    incorrectCounter: 0,
-    unansweredCounter: 0,
+    scoreCounters: {
+      correct: 0,
+      incorrect: 0,
+      unanswered: 0
+    }
+    // correctCounter: 0,
+    // incorrectCounter: 0,
+    // unansweredCounter: 0,
   };
 }
 
@@ -69,9 +74,9 @@ $(document).ready(function() {
       if(appState.phase !== "initial") {
         initializeApp();
       }
-      console.log("gameplay.beginGame");
       appState.phase = "prepareForNext";
       gameplay.startCountdown();
+      browser.refreshDisplay();
     },
 
     selectNextQuestion: function() {
@@ -86,12 +91,11 @@ $(document).ready(function() {
         data[appState.questionIndex].asked = true;
         appState.questionIndex++;
         console.log("current question: " + appState.currentQuestionObject.question);
-        browser.refreshDisplay();
         gameplay.startCountdown();
       } else {
         appState.phase = "endGame";
-        gameplay.endGame();
       }
+      browser.refreshDisplay();
     },
 
     startCountdown: function() {
@@ -165,17 +169,17 @@ $(document).ready(function() {
       //if unanswered
       if (userAnswer === null) {
         console.log("Time's up! The correct answer was " + correctAnswerValue);
-        appState.unansweredCounter++;
+        appState.scoreCounters.unanswered++;
       }
       // if correct: 
       else if(userAnswer === correctAnswerKey) {
         console.log(correctAnswerValue + " is correct!");
-        appState.correctCounter++;
+        appState.scoreCounters.correct++;
       }
       // if incorrect
       else if (userAnswer !== correctAnswerKey) {
         console.log("Nope. The correct answer is " + correctAnswerValue);
-        appState.incorrectCounter++;
+        appState.scoreCounters.incorrect++;
       }
 
       // wait some amount of time (countdown) 
@@ -185,14 +189,6 @@ $(document).ready(function() {
       appState.phase = "prepareForNext";
       gameplay.startCountdown();
 
-    },
-
-    endGame: function() {
-      //PHASE: endGame
-      console.log("gameover");
-      console.log("correct: " + appState.correctCounter);
-      console.log("incorrect: " + appState.incorrectCounter);
-      console.log("unanswered: " + appState.unansweredCounter);
     }
 
   };
@@ -243,7 +239,7 @@ $(document).ready(function() {
       for(var i = 0; i < Object.keys(object.options).length; i++){
         var key = Object.keys(object.options)[i];
         if(object.options.hasOwnProperty(key)){
-          value = object.options[key];
+          var value = object.options[key];
           var newButton = $("<button>" + value + "</button>");
           newButton.attr("data-key",key);
           newButton.addClass("choice-item");
@@ -272,16 +268,64 @@ $(document).ready(function() {
       }
       $(".countdown-section").append(newText);
     },
-  // display next question and display answer options (with no user input)
+
+    displayQuestionResult: function() {
+      
+    },
+
+    displayCorrectAnswer: function() {
+
+    },
+
+    displayEndScore: function() {
+      for(var i = 0; i < Object.keys(appState.scoreCounters).length; i++){
+        var key = Object.keys(appState.scoreCounters)[i];
+        if(appState.scoreCounters.hasOwnProperty(key)){
+          var value = appState.scoreCounters[key];
+          //var newElement = $("<h4>" + value + "</h4>");
+          //newElement.attr("data-key",key);
+          //newElement.addClass("score score-value " + key);
+          $("."+key).append(value);
+        }
+      }
+    },
+
   // display whether correct or incorrect
     // display correct answer if incorrect
-  // at end, display correct, incorrect, unanswered questions
   // reset display for new game/game start
 
   //refresh display function to call all of these. --> call it in each function in the logic section
     refreshDisplay: function() {
-      browser.renderQuestion(appState.currentQuestionObject);
-      browser.renderChoiceItems(appState.currentQuestionObject);
+      $(".countdown-section").empty();
+      $(".choice-items-section").empty();
+      $(".question-section").empty();
+
+      if(appState.phase !== "endGame" && appState.phase !== "initial"){
+        $(".start-button").addClass("hidden");
+        $(".score-section").addClass("hidden");
+      }
+
+      if(appState.phase === "initial"){
+
+      }
+      else if(appState.phase === "getQuestion"){
+        
+      }
+      else if(appState.phase === "waitingForAnswer"){
+        browser.renderQuestion(appState.currentQuestionObject);
+        browser.renderChoiceItems(appState.currentQuestionObject);
+      }
+      else if(appState.phase === "answeredInTime" || appState.phase === "unansweredInTime"){
+
+      }
+      else if(appState.phase === "prepareForNext"){
+
+      }
+      else if(appState.phase === "endGame"){
+        $(".score-section").removeClass("hidden");
+        $(".start-button").removeClass("hidden");
+        browser.displayEndScore();
+      }
     }
 
   };
