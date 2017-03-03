@@ -74,7 +74,7 @@ function resetData() {
       },
       'answer': 'd'
     },
-    {'question': 'The original Hersey\'s logo had...',
+    {'question': 'The original Hershey\'s logo had...',
       'options': {
         'a': 'A baby in a cocoa bean',
         'b': 'Milton\'s Initials',
