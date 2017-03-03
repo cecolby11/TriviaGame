@@ -99,7 +99,10 @@ $(document).ready(function() {
       console.log("start the clock");
       // don't allow interval to be setup multiple times over itself 
       if(appState.interval === null) {
-        appState.interval = setInterval(gameplay.countdownSeconds, 1000*1);
+        appState.interval = setInterval(function() {
+          gameplay.countdownSeconds();
+          browser.renderCountdown();
+        }, 1000*1);
       } else {
         console.log("there's somethign here!");
       }
@@ -200,11 +203,12 @@ $(document).ready(function() {
   // click start - begins game (start timer, select question, show question, etc.)
 
   // user clicks answer - processes answer
-  $(".choice-item").on("click", function(){
+  // use jquery event management so it applies to buttons created in the future
+  $(".choice-items-section").on("click", ".choice-item",function(){
     if(appState.phase === "waitingForAnswer"){
       //set phase to answeredInTime
       appState.phase = "answeredInTime";
-      var selectedKey = $(this).attr("data-name");
+      var selectedKey = $(this).attr("data-key");
       appState.userAnswer = selectedKey;
       gameplay.stopCountdown();
     }
@@ -228,7 +232,7 @@ $(document).ready(function() {
       var key = "question";
       if(object.hasOwnProperty(key)){
         value = object[key];
-        var newHeader = $("<h2>" + value + "</h2>");
+        var newHeader = $("<h1>" + value + "</h1>");
         newHeader.attr("data-key", key);
         $(".question-section").html(newHeader);
       }
@@ -242,6 +246,7 @@ $(document).ready(function() {
           value = object.options[key];
           var newButton = $("<button>" + value + "</button>");
           newButton.attr("data-key",key);
+          newButton.addClass("choice-item");
           $(".choice-items-section").append(newButton);
         }
 
@@ -251,8 +256,21 @@ $(document).ready(function() {
 
     renderCountdown: function() {
       $(".countdown-section").empty();
-
-
+      if(appState.phase==="waitingForAnswer"){
+        if(appState.timeToAnswer > 0){
+          var newText = $("<h2>Seconds remaining: " + appState.timeToAnswer + "</h2>");
+        } else {
+          var newText = $("<h2>Time's up!</h2>");
+        }
+      } 
+      else if(appState.phase==="prepareForNext"){
+        if(appState.timeBeforeNextQuestion > 0){
+          var newText = $("<h2>Ready? Next question in " + appState.timeBeforeNextQuestion + "</h2>");
+        } else {
+          //
+        }
+      }
+      $(".countdown-section").append(newText);
     },
   // display next question and display answer options (with no user input)
   // display whether correct or incorrect
